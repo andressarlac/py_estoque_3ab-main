@@ -11,7 +11,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'uma_chave_muito_secreta'
 # Configuração para postgreSQL
 DB_USER = 'postgres'
-DB_PASSWORD = 'geleira@1'
+DB_PASSWORD = 'wcc@2023'
 DB_HOST = 'localhost'
 DB_NAME = 'py_estoque_3b'
 DB_PORT = '5433'
@@ -52,7 +52,7 @@ def execute_db(query, args=()):
     db.commit()
     # Retorna o ID do último registro inserido, útil para o SERIAL
     if cur.description:
-        last_id = cur.getchone()[0]
+        last_id = cur.fetchone()[0]
     else:
         last_id = None
     cur.close()
@@ -98,7 +98,7 @@ def cadastro_usuario():
         if usuario_existente:
             return render_template('cadastro_usuario.html', erro='E-mail já cadastrado')
         
-        senha_hash = generate_password_hash(senha, method='pbkf2:sha256')
+        senha_hash = generate_password_hash(senha, method='pbkdf2:sha256')
         execute_db('INSERT INTO usuarios (nome, email, senha) VALUES (%s, %s, %s)', (nome, email, senha_hash))
         return redirect(url_for('autenticacao'))
     return render_template('cadastro_usuario.html')
@@ -137,7 +137,7 @@ def cadastro_produto():
     
     # Ordenar os produtos com base na proximidade da quantidade mínima
     produtos = query_db('SELECT * FROM produtos ORDER BY quantidade - quantidade_minima')
-    return render_template('cadastro_produto.html', produtos=produtos, usuarios=usuario.get('usuario_nome'))
+    return render_template('cadastro_produto.html', produtos=produtos, usuarios=session.get('usuario_nome'))
 
 @app.route('/saida_produto/<int:produto_id>', methods=['POST'])
 @login_required
@@ -158,7 +158,7 @@ def saida_produto(produto_id):
 @app.route('/estoque')
 @login_required
 def estoque():
-    movimentacoes = query_db('SELECT * FORM movimentacao_estoque AS m JOIN usuarios AS u ON m.usario_id = u.id ORDER BY m.data_movimentacao DESC')
+    movimentacoes = query_db('SELECT * FORM movimentacao_estoque AS m JOIN usuarios AS u ON m.usuario_id = u.id ORDER BY m.data_movimentacao DESC')
     return render_template('estoque.html', movimentacoes=movimentacoes, usuario=session.get('usuario_nome'))
 
 if __name__ == '__main__':
