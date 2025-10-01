@@ -137,9 +137,9 @@ def cadastro_produto():
     
     # Ordenar os produtos com base na proximidade da quantidade mínima
     produtos = query_db('SELECT * FROM produtos ORDER BY quantidade - quantidade_minima')
-    return render_template('cadastro_produto.html', produtos=produtos, usuarios=session.get('usuario_nome'))
+    return render_template('cadastro_produto.html', produtos=produtos, usuario=session.get('usuario_nome'))
 
-@app.route('/saida_produto/<int:produto_id>', methods=['POST'])
+@app.route('/saida_produto/<int:produto_id>', methods=['POST']) 
 @login_required
 def saida_produto(produto_id):
     produto = query_db('SELECT * FROM produtos WHERE id = %s', (produto_id,), one=True)
@@ -158,7 +158,16 @@ def saida_produto(produto_id):
 @app.route('/estoque')
 @login_required
 def estoque():
-    movimentacoes = query_db('SELECT * FORM movimentacao_estoque AS m JOIN usuarios AS u ON m.usuario_id = u.id ORDER BY m.data_movimentacao DESC')
+    movimentacoes = query_db('''
+        SELECT 
+            m.*, 
+            u.nome AS nome_usuario,
+            p.nome AS nome_produto
+        FROM movimentacao_estoque AS m
+        JOIN usuarios AS u ON m.usuario_id = u.id
+        JOIN produtos AS p ON m.produto_id = p.id
+        ORDER BY m.data_movimentacao DESC
+    ''')
     return render_template('estoque.html', movimentacoes=movimentacoes, usuario=session.get('usuario_nome'))
 
 if __name__ == '__main__':
