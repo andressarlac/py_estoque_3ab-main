@@ -155,7 +155,7 @@ def saida_produto(produto_id):
     
     return redirect(url_for('cadastro_produto'))
    
-@app.route('/estoque')
+@app.route('/estoque',  methods=['GET', 'POST'])
 @login_required
 def estoque():
     movimentacoes = query_db('''
