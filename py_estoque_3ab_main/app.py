@@ -178,5 +178,31 @@ def estoque():
         usuario=session.get('usuario_nome')
     )
     
+@app.route('/editar_produto/<int:produto_id>', methods=['GET', 'POST'])
+@login_required
+def editar_produto(produto_id):
+    produto = query_db('SELECT * FROM produtos WHERE id = %s', (produto_id,), one=True)
+    if not produto:
+        Flask("Produto não encontrado.")
+        return redirect(url_for('cadastro_produto'))
+
+    if request.method == 'POST':
+        try:
+            nome = request.form.get('nome', '').strip()
+            descricao = request.form.get('descricao', '').strip()
+            quantidade = int(request.form.get('quantidade', produto['quantidade']))
+            preco = float(request.form.get('preco', produto['preco']))
+            quantidade_minima = int(request.form.get('quantidade_minima', produto['quantidade_minima']))
+
+            execute_db(
+                'UPDATE produtos SET nome=%s, descricao=%s, quantidade=%s, preco=%s, quantidade_minima=%s WHERE id=%s',
+                (nome, descricao, quantidade, preco, quantidade_minima, produto_id)
+            )
+            Flask("Produto atualizado com sucesso.")
+            return redirect(url_for('cadastro_produto'))
+        except Exception:
+            Flask("Erro ao atualizar o produto. Veja logs do servidor.")
+    return render_template('editar_produto.html', produto=produto, usuario=session.get('usuario_nome'))
+
 if __name__ == '__main__':
     app.run(debug=True)
