@@ -1,0 +1,69 @@
+<!Doctype html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Movimentação de estoque</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Olá, {{ usuario }}!</h1>
+            <div class="nav-links">
+                <a href="{{ url_for('cadastro_produto') }}">Cadastrar Produto</a>
+                <a href="{{ url_for('logout') }}">Sair</a>
+            </div>
+        </div>
+
+        <h2>📦 Produtos no Estoque</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Descrição</th>
+                    <th>Quantidade</th>
+                    <th>Preço</th>
+                    <th>Qtd. Mínima</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in produtos %}
+                <tr>
+                    <td>{{ p.id }}</td>
+                    <td>{{ p.nome }}</td>
+                    <td>{{ p.descricao }}</td>
+                    <td>{{ p.quantidade }}</td>
+                    <td>R$ {{ "%.2f"|format(p.preco) }}</td>
+                    <td>{{ p.quantidade_minima }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>📊 Movimentações de Estoque</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Produto</th>
+                    <th>Tipo</th>
+                    <th>Quantidade</th>
+                    <th>Data</th>
+                    <th>Usuário</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in movimentacoes %}
+                <tr>
+                    <td>{{ m.nome_produto }}</td>
+                    <td>{{ m.tipo_movimentacao }}</td>
+                    <td>{{ m.quantidade }}</td>
+                    <td>{{ m.data_movimentacao.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ m.nome_usuario }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
